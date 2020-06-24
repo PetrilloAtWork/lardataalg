@@ -246,6 +246,54 @@ namespace util {
       : MappedContainer(cont, mapping, minimal_size(cont, mapping))
       {}
 
+    /**
+     * @brief Constructor: steals data, acquires mapping and a default value.
+     * @param cont container with the data to be mapped
+     * @param mapping the mapping to be used
+     * @param size the size of the container after mapping
+     * @param defValue value to be used as default
+     *
+     * The `defValue` value is returned for the requested elements which are not
+     * mapped to the original container (`InvalidIndex`).
+     */
+    MappedContainer(
+      DataContainer_t&& cont,
+      Mapping_t const& mapping,
+      size_type size,
+      value_type defValue
+      )
+      : fData(std::move(cont)), fMapping(mapping)
+      , fSize(size), fDefValue(defValue)
+      {}
+
+    /**
+     * @brief Constructor: steals data and acquires mapping.
+     * @param cont container with the data to be mapped
+     * @param mapping the mapping to be used
+     * @param size the size of the container after mapping
+     *
+     * The default value is a default-constructed `value_type` (`0` for numeric
+     * types, `nullptr` for pointers).
+     */
+    MappedContainer
+      (DataContainer_t&& cont, Mapping_t const& mapping, size_type size)
+      : MappedContainer(std::move(cont), mapping, size, {})
+      {}
+
+    /**
+     * @brief Constructor: steals data and acquires mapping.
+     * @param cont container with the data to be mapped
+     * @param mapping the mapping to be used
+     *
+     * The size of the container is declared to be the minimal one
+     * (see `minimal_size()`).
+     * The default value is a default-constructed `value_type` (`0` for numeric
+     * types, `nullptr` for pointers).
+     */
+    MappedContainer(DataContainer_t&& cont, Mapping_t const& mapping)
+      : MappedContainer(std::move(cont), mapping, minimal_size(cont, mapping))
+      {}
+
     /// @}
     // --- END Constructors ----------------------------------------------------
 
@@ -504,10 +552,15 @@ namespace util {
     class ContainerStorage: public ContainerStorageBase<Cont> {
 
       using Base_t = ContainerStorageBase<Cont>;
-
+      
+        public:
       // inherit all constructors
-      using Base_t::Base_t;
+//       using Base_t::Base_t;
 
+      ContainerStorage() = default;
+      explicit ContainerStorage(Cont const& cont): Base_t(cont) {}
+      explicit ContainerStorage(Cont&& cont): Base_t(std::move(cont)) {}
+      
     }; // struct ContainerStorage
 
 
