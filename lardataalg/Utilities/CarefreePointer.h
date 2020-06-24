@@ -23,7 +23,15 @@
 // -----------------------------------------------------------------------------
 namespace util {
   template <typename T, typename Deleter> class CarefreePointer;
-}
+  
+  /// Contains `value` `true` if `T` is a `CarefreePointer`.
+  template <typename T> struct is_carefree_pointer;
+  
+  /// `true` if `T` is a `CarefreePointer`.
+  template <typename T>
+  constexpr auto is_carefree_pointer_v = is_carefree_pointer<T>::value;
+} // namespace util
+
 
 /**
  * @brief A pointer which takes care of freeing its memory, _if_ owned.
@@ -207,11 +215,37 @@ namespace util {
 //------------------------------------------------------------------------------
 //--- util::CarefreePointer
 //------------------------------------------------------------------------------
+template <typename T, typename Deleter> class CarefreePointer;
+
+namespace util {
+  
+  namespace details {
+    
+    template <typename Coll, typename = void>
+    struct is_carefree_pointer_impl: std::false_type {};
+    
+    template <typename... Args>
+    struct is_carefree_pointer_impl<CarefreePointer<Args...>>
+      : std::true_type
+    {};
+    
+  } // namespace details
+  
+  template <typename T>
+  struct is_carefree_pointer: details::is_carefree_pointer_impl<T> {};
+  
+  
+} // namespace util
+
+
+
+//------------------------------------------------------------------------------
 template <typename T, typename Deleter>
 auto util::CarefreePointer<T, Deleter>::get() const -> element_type const* {
   if (auto pPtr = std::get_if<OwningPointer_t>(&fPtr))    return pPtr->get();
   if (auto pPtr = std::get_if<NonOwningPointer_t>(&fPtr)) return *pPtr;
   assert(false);
+  return nullptr; // quiet the compiler
 } // util::CarefreePointer<T, Deleter>::get() const
 
 
@@ -221,6 +255,7 @@ auto util::CarefreePointer<T, Deleter>::get() -> element_type* {
   if (auto pPtr = std::get_if<OwningPointer_t>(&fPtr))    return pPtr->get();
   if (auto pPtr = std::get_if<NonOwningPointer_t>(&fPtr)) return *pPtr;
   assert(false);
+  return nullptr; // quiet the compiler
 } // util::CarefreePointer<T, Deleter>::get()
 
 
