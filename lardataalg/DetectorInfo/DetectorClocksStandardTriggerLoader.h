@@ -62,7 +62,10 @@ namespace detinfo {
     using TriggerHandle_t = typename Event::template HandleT<std::vector<raw::Trigger>>;
 
     TriggerHandle_t triggerHandle;
-    if (!event.template getByLabel(triggerTag, triggerHandle)) { return std::nullopt; }
+    // workaround for gallery bug #25077:
+//     if (!event.template getByLabel(triggerTag, triggerHandle))
+    if (triggerTag.empty() || !event.template getByLabel(triggerTag, triggerHandle))
+      return std::nullopt;
 
     // check that we do have a trigger
     // (we have already checked whether the handle is valid above)
@@ -106,7 +109,10 @@ namespace detinfo {
     using TriggerHandle_t = typename Event::template HandleT<std::vector<raw::Trigger>>;
 
     TriggerHandle_t triggerHandle;
-    if (!event.template getByLabel(triggerTag, triggerHandle)) return std::nullopt;
+    // workaround for gallery bug #25077:
+    // if (!event.template getByLabel(triggerTag, triggerHandle))
+    if (triggerTag.empty() || !event.template getByLabel(triggerTag, triggerHandle))
+      return std::nullopt;
 
     // check that we do have a trigger
     // (we have already checked whether the handle is valid above)
