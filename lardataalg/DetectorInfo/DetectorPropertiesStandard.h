@@ -45,8 +45,8 @@ namespace detinfo {
 
       fhicl::Sequence<double> Efield{
         Name("Efield"),
-        Comment("electric field in front of each wire plane (the last one is "
-                "the big one!) [kV/cm]")};
+        Comment("electric field in front of each wire plane (toward cathode; the first one is "
+                "the main TPC drift volume) [kV/cm]")};
 
       fhicl::Atom<double> Electronlifetime{Name("Electronlifetime"),
                                            Comment("electron lifetime in liquid argon [us]")};
